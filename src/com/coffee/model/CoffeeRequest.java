@@ -21,6 +21,7 @@ import org.directwebremoting.annotations.DataTransferObject;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.coffee.base.BaseModel;
+import com.google.gson.annotations.Expose;
 
 @Entity
 @Table(name = "coffee_request")
@@ -29,17 +30,19 @@ public class CoffeeRequest extends BaseModel implements Serializable {
 
 	private static final long serialVersionUID = -3907539899166748695L;
 	
+	@Expose
 	private Long id;
+	@Expose
 	private Date applicationDate;
-	private Date brewDate;
-	private Integer coffeeLevel;
-	private Integer creamerLevel;
-	private Integer sugarLevel;
-	private Integer status;
-	private Integer queue;
+	@Expose private Date brewDate;
+	@Expose private Integer coffeeLevel;
+	@Expose private Integer creamerLevel;
+	@Expose private Integer sugarLevel;
+	@Expose private Integer status;
+	@Expose private Integer queue;
 	
-	private Users user;
-	private Configuration config;
+	@Expose private Users user;
+	@Expose private Configuration config;
 	
 	private String brewDatee;
 	

@@ -9,6 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.coffee.base.BaseServiceImpl;
 import com.coffee.dao.CoffeeDao;
+import com.coffee.model.CoffeeRequest;
+import com.coffee.model.CoffeeRequestDTO;
 import com.coffee.model.Users;
 import com.coffee.service.CoffeeService;
 
@@ -32,6 +34,12 @@ public class CoffeeServiceImpl extends BaseServiceImpl implements CoffeeService 
 	@Override
 	public String checkLatestSched(Users user) {
 		return coffeeDao.checkLatestSched(user);
+	}
+
+	@Override
+	public List<CoffeeRequestDTO> viewCoffeeRequest(Users user) {
+		// TODO Auto-generated method stub
+		return coffeeDao.viewCoffeeRequest(user);
 	}
 	
 

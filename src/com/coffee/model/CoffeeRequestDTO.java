@@ -2,18 +2,22 @@ package com.coffee.model;
 
 import java.util.Date;
 
+import com.google.gson.annotations.Expose;
+
 public class CoffeeRequestDTO {
 	
-	private Long id;
-	private Date applicationDate;
-	private Date brewDate;
+	@Expose private Long id;
+	@Expose private Date applicationDate;
+	@Expose private Date brewDate;
 	private Integer coffeeLevel;
 	private Integer creamerLevel;
 	private Integer sugarLevel;
-	private Integer status;
+	@Expose private Integer status;
 	private Integer queue;
 	private Integer configStatus;
 	private Long userId;
+	@Expose private String statusDesc;
+	@Expose private String username;
 	
 	public Long getId() {
 		return id;
@@ -74,5 +78,17 @@ public class CoffeeRequestDTO {
 	}
 	public void setUserId(Long userId) {
 		this.userId = userId;
+	}
+	public String getStatusDesc() {
+		return statusDesc;
+	}
+	public void setStatusDesc(String statusDesc) {
+		this.statusDesc = statusDesc;
+	}
+	public String getUsername() {
+		return username;
+	}
+	public void setUsername(String username) {
+		this.username = username;
 	}
 }

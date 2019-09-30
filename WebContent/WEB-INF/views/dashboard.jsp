@@ -46,7 +46,7 @@
 
 						</tr>
 					</thead>
-					<tbody id="tbody-brews">
+					<tbody id="coffee-data">
 						<tr><td colspan=5 class="success text-center" ><a href="#" class="text-bold text-italic"><i class="fa fa-spinner fa-spin"></i> loading . . . </td></tr>
 					</tbody>
 				 </table>
@@ -380,5 +380,20 @@
 			</div>
 			<!-- /.box-body -->
 		</div>
+	</div>
+	
+	<div id="coffee-temp" class="hide"></div>
+	<div id="coffee-row" class="hide">
+		<table>
+			<tbody>
+				<tr>
+					<td class="no"></td>
+					<td class="appDate"></td>
+					<td class="brewDate"></td>
+					<td class="user"></td>
+					<td class="status"></td>
+				</tr>
+			</tbody>
+		</table>
 	</div>
 

@@ -51,7 +51,7 @@ function modalAlertMessage(description, info) {
 	notifTemplate.find('.alert .info-message').text(info);
 	
 	$('#notif-alert .alert-group').append(notifTemplate.html());
-	$('#notif-alert .alert-group div.alert').fadeIn().delay(1800).fadeOut(function(){
+	$('#notif-alert .alert-group div.alert').fadeIn().delay(6000).fadeOut(function(){
 		$(this).remove();
     });
 }

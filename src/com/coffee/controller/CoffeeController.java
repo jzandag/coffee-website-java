@@ -5,12 +5,14 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.encoding.Md5PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
@@ -22,10 +24,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.coffee.base.BaseController;
 import com.coffee.enums.Roles;
 import com.coffee.model.CoffeeRequest;
+import com.coffee.model.CoffeeRequestDTO;
 import com.coffee.model.Configuration;
 import com.coffee.model.Users;
 import com.coffee.service.CoffeeService;
+import com.coffee.util.Config;
 import com.coffee.util.InventoryUtility;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 
 @Controller
@@ -140,23 +146,28 @@ public class CoffeeController extends BaseController {
 			
 			Long id = Long.parseLong(request.getParameter("id"));
 			coffeeService.delete(Users.class, id);
+			model.put("users", coffeeService.getAll(Users.class));
 			return "viewUsers";
 		}
 		return "login";
 	}
 	
 	@RequestMapping(value = "/save", method = RequestMethod.POST)
-	public String saveUser(HttpServletRequest request,HttpServletResponse response,ModelMap model,@ModelAttribute("userComand") Users user,BindingResult result) throws IOException {
+	public String saveUser(HttpServletRequest request,HttpServletResponse response,ModelMap model,@ModelAttribute("userCommand") Users user) throws IOException {
 		if(!InventoryUtility.isNull(request.getSession().getAttribute("userSessionObj"))){
+			Md5PasswordEncoder md5 = new Md5PasswordEncoder();
+			String pw = md5.encodePassword(user.getPassword(), "");
+			
+			user.setPassword(pw);
 			coffeeService.save(user);
 			model.put("users", coffeeService.getAll(Users.class));
-			return "userProfile";
+			return "viewUsers";
 		}
 		return "login";
 	}
 	
 	@RequestMapping(value = "/myProfile", method = RequestMethod.GET)
-	public String myProfile(HttpServletRequest request,HttpServletResponse response,ModelMap model,@ModelAttribute("userComand") Users user,BindingResult result) throws IOException {
+	public String myProfile(HttpServletRequest request,HttpServletResponse response,ModelMap model,@ModelAttribute("userCommand") Users user,BindingResult result) throws IOException {
 		if(!InventoryUtility.isNull(request.getSession().getAttribute("userSessionObj"))){
 			initModel(model);
 			model.put("users", coffeeService.getAll(Users.class));
@@ -169,10 +180,9 @@ public class CoffeeController extends BaseController {
 	public @ResponseBody String disable(HttpServletRequest request,HttpServletResponse response,ModelMap map,@ModelAttribute("coffeeCommand")CoffeeRequest cr) throws IOException {
 		//if(!InventoryUtility.isNull(request.getSession().getAttribute("userSessionObj")))
 			
-			Users user = (Users) request.getSession().getAttribute("userSessionObj");
-			Boolean test = coffeeService.checkIfQueue(user);
-			return "result:"+test;
-		
+		Users user = (Users) request.getSession().getAttribute("userSessionObj");
+		Boolean test = coffeeService.checkIfQueue(user);
+		return "{\"result\":\""+test+"\"}";
 	}
 	
 	@RequestMapping(value = "/latestSched")
@@ -182,6 +192,27 @@ public class CoffeeController extends BaseController {
 			
 			String test = coffeeService.checkLatestSched(user);
 		return "{\"alert\":\""+test+"\"}";
+	}
+	
+	@RequestMapping(value = "/listQueue")
+	public @ResponseBody String json(HttpServletRequest request,HttpServletResponse response,ModelMap map,@ModelAttribute("coffeeCommand")CoffeeRequest cr) throws IOException {
+		/*if(!InventoryUtility.isNull(request.getSession().getAttribute("userSessionObj"))){*/
+		Users user = (Users) request.getSession().getAttribute("userSessionObj");
+		List<CoffeeRequestDTO> li = coffeeService.viewCoffeeRequest(user);
+		
+		GsonBuilder gsonBuilder = new GsonBuilder();
+		Gson gson = gsonBuilder.excludeFieldsWithoutExposeAnnotation().create();
+		return gson.toJson(li);
+	}
+	
+	@RequestMapping(value = "/machine", method = RequestMethod.GET)
+	public void machineLog(HttpServletRequest request,HttpServletResponse response,ModelMap map) throws IOException {
+		Long id = Long.parseLong(Config.getProperties("machine.id"));
+		
+		Users user = coffeeService.get(Users.class, id);
+		request.getSession().setAttribute("userSessionObj", user);
+		
+		response.sendRedirect(request.getContextPath() + "/coffee/dashboard");
 	}
 	
 	private void initModel(ModelMap model) {

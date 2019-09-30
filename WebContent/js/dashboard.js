@@ -5,7 +5,7 @@
  $(document).ready(function(){
 
     /*jQuery.ajaxSetup({
-        async: false;
+        async: false;ww
     });
 */
     $(".dropdown").hover(function() {
@@ -48,7 +48,7 @@
     function load_data_queue(view){
         var result;
     	$.ajax({
-    		url:"../includes/fetchQueue.inc.php",
+    		url: baseUrl+"/listQueue",
     		method:"POST",
     		data:{view:view},
     		success:function(data){
@@ -83,9 +83,9 @@
             url: baseUrl+"/disable",
             method: "POST",
             data: {disable:''},
-            dataType: "json",
             success: function(data){
-                if(data.result){
+            	var result = JSON.parse(data);
+                if(result.result != "false"){
                     $('.btn-brew').attr("disabled",true);
                     $('.btn-brew').attr("title","There is a queue");
                 }else{
@@ -108,9 +108,9 @@
     load_latest_sched();
     setInterval(function(){
     	//update_list();
-    	//load_data_queue();
     	load_latest_sched();
-    },8000);
+    	loadDataQueue();
+    },5000);
 
     $('#execute_form').submit(function(event){
         event.preventDefault();
@@ -139,6 +139,46 @@
         });
         
     });
+    
+    loadDataQueue();
+    function loadDataQueue() {
+    	$.ajax({
+	    	type : "POST",
+	    	url : baseUrl+"/listQueue",
+	    	data : {},
+	    	success : function(response) {
+		    	var result = JSON.parse(response);
+		    	var $template = $('#coffee-row table tbody');
+		    	var $root = $('div#coffee-temp');	   	   	
+		    	var $tbody = $('tbody#coffee-data');
+		    	
+		    	var row = "";
+		    	if(result.length > 0) {
+			    	for(var i in result) {
+				    	$root.append($template.html());
+				    	$root.find('.no').text(Number(i) + 1);
+				    	$root.find('.appDate').text(result[i].applicationDate);
+				    	$root.find('.brewDate').text(result[i].brewDate);
+				    	$root.find('.user').text(result[i].username);
+				    	$root.find('.status').text(result[i].statusDesc);
+
+				    	row += $root.html();
+				    	$root.html('');
+			    	}
+				    	$tbody.html('');
+				    	$tbody.append(row);
+		    	} else {
+			    	$tbody.html('');
+			    	$tbody.append('<tr class="text-center"><td colspan="5">No records found.</td></tr>');
+		    	}
+	    	},
+	    	error : function(e) {
+	    	//show error message
+	    	},
+	    	   complete: function() {
+	    	   }
+	    	});
+    	}
 
     //DASHBOARD ANALYTICS JS
     /*$('#anlyt1').on('click',function(){

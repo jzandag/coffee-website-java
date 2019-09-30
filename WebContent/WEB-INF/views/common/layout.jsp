@@ -37,7 +37,7 @@
 	<link rel="stylesheet" href="<c:url value="/css/plugins/jquery.dataTables.min.css"/>" />
 	<link rel="stylesheet" href="<c:url value="/css/plugins/morris.css"/>" /> -->
 
-	<link rel="shortcut icon" href="<c:url value="/images/coffeemask2.png"/>" />
+	<link rel="shortcut icon" href="<c:url value="/image/coffeemask2.png"/>" />
 
 	</head>
 	<body class="hold-transition skin-red-light sidebar-mini fixed">

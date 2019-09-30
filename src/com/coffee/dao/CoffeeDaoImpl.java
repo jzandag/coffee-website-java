@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.coffee.base.BaseDaoHibernate;
+import com.coffee.enums.CoffeeStatusEnum;
 import com.coffee.model.CoffeeRequest;
 import com.coffee.model.CoffeeRequestDTO;
 import com.coffee.model.Users;
@@ -128,6 +129,36 @@ public class CoffeeDaoImpl extends BaseDaoHibernate implements CoffeeDao  {
 		}
 			
 		return output;
+	}
+
+	@Override
+	public List<CoffeeRequestDTO> viewCoffeeRequest(Users user) {
+		//StringBuffer hqlQuery = new StringBuffer("FROM CoffeeRequest where 1=1 ");
+		
+		StringBuffer hqlQuery = new StringBuffer("SELECT c.coffeereq_id AS id,c.app_date AS applicationDate, c.brew_date AS brewDate, u.username,c.status FROM coffee_request c ");
+		
+		
+		hqlQuery.append("INNER JOIN users u ON u.id = c.userID ");
+		hqlQuery.append("WHERE 1=1 ");
+		if(user.getRole() == "user")
+			hqlQuery.append("and id = :id ");
+		hqlQuery.append("and `status` = 0 or status = 2");
+		
+		SQLQuery query = getSession().createSQLQuery(hqlQuery.toString());
+		query.addScalar("id", StandardBasicTypes.LONG);
+		query.addScalar("applicationDate", StandardBasicTypes.DATE);
+		query.addScalar("brewDate", StandardBasicTypes.DATE);
+		query.addScalar("status", StandardBasicTypes.INTEGER);
+		query.addScalar("username", StandardBasicTypes.STRING);
+		query.setResultTransformer(Transformers.aliasToBean(CoffeeRequestDTO.class));
+		if(user.getRole() == "user") {
+			query.setParameter("id",user.getId());
+		}
+		List<CoffeeRequestDTO> result = query.list();
+		for(CoffeeRequestDTO d: result){
+			d.setStatusDesc(CoffeeStatusEnum.getInstance(d.getStatus()).getDescription().toUpperCase());
+		}
+		return result;
 	}
 	
 	
