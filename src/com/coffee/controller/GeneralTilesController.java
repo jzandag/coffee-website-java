@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import com.coffee.base.BaseController;
 import com.coffee.model.Users;
 import com.coffee.service.CoffeeService;
+import com.coffee.util.Config;
 import com.coffee.util.InventoryUtility;
 
 
@@ -41,6 +42,7 @@ protected static Logger logger = Logger.getLogger(GeneralTilesController.class);
 		if(!InventoryUtility.isNull(request.getSession().getAttribute("userSessionObj"))){
 			response.sendRedirect(request.getContextPath() + "/coffee/dashboard");
 		}
+		System.out.println("Main menu page" + Config.getProperties("database.password"));
 		return "login";
 		
 	}
@@ -52,7 +54,7 @@ protected static Logger logger = Logger.getLogger(GeneralTilesController.class);
 		String pw = md5.encodePassword(user.getPassword(), "");
 		//coffeeService
 		user.setPassword(pw);
-		
+		System.out.println("Logging in " + Config.getProperties("database.password"));
 		 HashMap<String, Object> map = new HashMap<String, Object>();
 			map.put("password", user.getPassword());
 			map.put("username", user.getUsername());

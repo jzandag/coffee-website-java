@@ -1,7 +1,10 @@
 package com.coffee.dao;
 
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Query;
@@ -11,11 +14,13 @@ import org.hibernate.transform.Transformers;
 import org.hibernate.type.StandardBasicTypes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.coffee.base.BaseDaoHibernate;
 import com.coffee.enums.CoffeeStatusEnum;
 import com.coffee.model.CoffeeRequest;
 import com.coffee.model.CoffeeRequestDTO;
+import com.coffee.model.Notification;
 import com.coffee.model.Users;
 import com.coffee.util.InventoryUtility;
 			
@@ -74,6 +79,8 @@ public class CoffeeDaoImpl extends BaseDaoHibernate implements CoffeeDao  {
 		return result.size() > 0 ? true : false;
 	}
 
+	@Transactional
+	@SuppressWarnings("unchecked")
 	@Override
 	public String checkLatestSched(Users user) {
 		
@@ -114,8 +121,28 @@ public class CoffeeDaoImpl extends BaseDaoHibernate implements CoffeeDao  {
 				}
 				
 				query3.executeUpdate();
+				//adding notifications for each user
+				Notification n = new Notification();
+				Date date = new Date(System.currentTimeMillis());
+				n.setCreatedDate(date);
+				n.setIsRead(false);
+				n.setUserId(c.getUser().getId());
+				n.setDescription("Coffee of user \"" + c.getUser().getId() + "\" is ready");
 				
-				if(user.getId() == c.getUser().getId()){
+				if(!c.getUser().getRole().equals("admin")){
+					save(n);
+				}
+				HashMap<String, Object> map = new HashMap<String, Object>();
+				map.put("role", "admin");
+				List<Users> list = (List<Users>) getAllByHashMap(Users.class, map);
+				
+				for(Users notifUser : list){
+					n.setUserId(notifUser.getId());
+					save(n);
+				}
+				//end add notif
+				
+				if(user.getId().equals(c.getUser().getId())){
 					output = "<script>modalAlertMessage('Coffee Brew', 'Coffee is ready to serve at slot #2');console.log('coffee brew!');</script>";
 				}
 				String queueFinish = "UPDATE coffee_request SET queue=0 WHERE coffeereq_id = :id";
@@ -140,9 +167,9 @@ public class CoffeeDaoImpl extends BaseDaoHibernate implements CoffeeDao  {
 		
 		hqlQuery.append("INNER JOIN users u ON u.id = c.userID ");
 		hqlQuery.append("WHERE 1=1 ");
-		if(user.getRole() == "user")
-			hqlQuery.append("and id = :id ");
-		hqlQuery.append("and `status` = 0 or status = 2");
+		if(user.getRole().equals("user"))
+			hqlQuery.append("and userID = :id ");
+		hqlQuery.append("AND `status` IN (0,2)");
 		
 		SQLQuery query = getSession().createSQLQuery(hqlQuery.toString());
 		query.addScalar("id", StandardBasicTypes.LONG);
@@ -151,7 +178,7 @@ public class CoffeeDaoImpl extends BaseDaoHibernate implements CoffeeDao  {
 		query.addScalar("status", StandardBasicTypes.INTEGER);
 		query.addScalar("username", StandardBasicTypes.STRING);
 		query.setResultTransformer(Transformers.aliasToBean(CoffeeRequestDTO.class));
-		if(user.getRole() == "user") {
+		if(user.getRole().equals( "user")) {
 			query.setParameter("id",user.getId());
 		}
 		List<CoffeeRequestDTO> result = query.list();
@@ -159,6 +186,35 @@ public class CoffeeDaoImpl extends BaseDaoHibernate implements CoffeeDao  {
 			d.setStatusDesc(CoffeeStatusEnum.getInstance(d.getStatus()).getDescription().toUpperCase());
 		}
 		return result;
+	}
+
+	@Override
+	public Map<String, Object> viewNotifUnread(Long id) {
+		Map<String, Object> map = new HashMap<String, Object>();		
+		StringBuffer dynamicSql = new StringBuffer();
+		
+		//Generate sqlCount query
+		StringBuffer hqlQueryCount = new StringBuffer("select count(*) from Notification e where 1=1 ");
+		StringBuffer hqlQuery = new StringBuffer("from Notification e where 1=1 ");
+		dynamicSql.append("AND isRead=false ");
+		dynamicSql.append("AND userId= :id ");
+		
+		
+		final String sql =  hqlQuery.append(dynamicSql).toString();
+		final String sqlCount =  hqlQueryCount.append(dynamicSql).toString();
+		
+		Query query = getSession().createQuery(sql);
+		Query queryCount = getSession().createQuery(sqlCount);
+		
+		query.setParameter("id", id);
+		queryCount.setParameter("id", id);
+		
+		Integer count = Integer.parseInt(queryCount.list().get(0).toString());
+		List<Notification> result = query.list();
+		
+		map.put(KEY_COUNT, count);
+		map.put(KEY_LIST, result);
+		return map;
 	}
 	
 	

@@ -1,6 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8"%>
 <%@include file="common/taglibs.jsp"%>
-	<script src="<c:url value="/js/dashboard.js"/>"></script>
 
 	<link rel="stylesheet" href="<c:url value="/css/dashboard.css"/>" />
  	<link rel="stylesheet" href="<c:url value="/css/radio.css"/>" />
@@ -60,7 +59,7 @@
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+					<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">x</span><span class="sr-only">Close</span></button>
 					<h3 class="modal-title" id="lineModalLabel">Brew a coffee</h3>
 				</div>
 				<div class="modal-body">
@@ -163,7 +162,7 @@
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+					<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">x</span><span class="sr-only">Close</span></button>
 					<h3 class="modal-title" id="lineModalLabel">Brew a coffee</h3>
 				</div>
 				<div class="modal-body">
@@ -279,7 +278,7 @@
 		<div class="modal-dialog">
 			<div class="modal-content">
 				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span><span class="sr-only">Close</span></button>
+					<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">x</span><span class="sr-only">Close</span></button>
 					<h3 class="modal-title" id="lineModalLabel">My Modal</h3>
 				</div>
 				<div class="modal-body">

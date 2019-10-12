@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8"%>
 <%@include file="common/taglibs.jsp" %>
+ <%@ page isThreadSafe="false"  %>
 <div class="login-box">
     <img src="<c:url value="/image/coffeemask2.png"/>" class="avatar">
         <h1>Login Here</h1>

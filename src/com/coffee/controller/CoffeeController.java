@@ -28,10 +28,12 @@ import com.coffee.enums.Roles;
 import com.coffee.model.CoffeeRequest;
 import com.coffee.model.CoffeeRequestDTO;
 import com.coffee.model.Configuration;
+import com.coffee.model.Notification;
 import com.coffee.model.Users;
 import com.coffee.service.CoffeeService;
 import com.coffee.util.Config;
 import com.coffee.util.InventoryUtility;
+import com.coffee.util.Page;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -170,15 +172,41 @@ public class CoffeeController extends BaseController {
 	public String myProfile(HttpServletRequest request, HttpServletResponse response, ModelMap model, @ModelAttribute("userCommand") Users user, BindingResult result) throws IOException {
 		if (!InventoryUtility.isNull(request.getSession().getAttribute("userSessionObj"))) {
 			initModel(model);
-			model.put("users", coffeeService.getAll(Users.class));
+
+			Users user2 = coffeeService.get(Users.class, user.getId());
+			model.put("userCommand", user2);
 			return "userProfile";
 		}
 		return "login";
 	}
+	
+	@RequestMapping(value = "/notifList", method = RequestMethod.GET)
+	public @ResponseBody String notif(HttpServletRequest request) throws IOException {
+		Long id = Long.parseLong(request.getParameter("id"));
+		Page page = coffeeService.viewNotifUnread(id);
+
+		GsonBuilder gsonBuilder = new GsonBuilder();
+		Gson gson = gsonBuilder.excludeFieldsWithoutExposeAnnotation().create();
+		return gson.toJson(page);
+	}
+	
+	@RequestMapping(value = "/clearNotif", method = RequestMethod.GET)
+	public @ResponseBody String clearnotif(HttpServletRequest request) throws IOException {
+		Long id = Long.parseLong(request.getParameter("id"));
+		HashMap<String, Object> map = new HashMap<String, Object>();
+		map.put("userId", id);
+		List<Notification> notif = (List<Notification>) coffeeService.getAllByHashMap(Notification.class, map);
+	
+		for(Notification n: notif){
+			n.setIsRead(true);
+			coffeeService.save(n);
+		}
+		
+		return "{\"alert\":\"hello\"}";
+	}
 
 	@RequestMapping(value = "/disable")
-	public @ResponseBody
-	String disable(HttpServletRequest request, HttpServletResponse response, ModelMap map, @ModelAttribute("coffeeCommand") CoffeeRequest cr) throws IOException {
+	public @ResponseBody String disable(HttpServletRequest request, HttpServletResponse response, ModelMap map, @ModelAttribute("coffeeCommand") CoffeeRequest cr) throws IOException {
 		// if(!InventoryUtility.isNull(request.getSession().getAttribute("userSessionObj")))
 
 		Users user = (Users) request.getSession().getAttribute("userSessionObj");
