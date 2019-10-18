@@ -6,7 +6,7 @@ $(document).ready(function() {
 		$(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
 	});
 
-	$('#submit_form').bootstrapValidator({
+	$('#submit_form2').bootstrapValidator({
 		framework : 'bootstrap',
 		message : 'This value is not valid',
 		feedbackIcons : {

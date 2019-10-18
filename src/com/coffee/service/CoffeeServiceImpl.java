@@ -1,5 +1,6 @@
 package com.coffee.service;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -36,7 +37,7 @@ public class CoffeeServiceImpl extends BaseServiceImpl implements CoffeeService 
 	}
 
 	@Override
-	public String checkLatestSched(Users user) {
+	public String checkLatestSched(Users user) throws IOException {
 		return coffeeDao.checkLatestSched(user);
 	}
 

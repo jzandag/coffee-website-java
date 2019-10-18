@@ -2,10 +2,6 @@ package com.coffee.util;
 
 import org.apache.commons.lang.StringUtils;
 
-/**
- * @author Ross Zarsuela
- */
-
 public class PaginationUtility {
 
 	/**

@@ -1,5 +1,6 @@
 package com.coffee.dao;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -15,7 +16,7 @@ public interface CoffeeDao extends BaseDao {
 	
 	public Boolean checkIfQueue(Users user);
 	
-	public String checkLatestSched(Users user);
+	public String checkLatestSched(Users user) throws IOException;
 	
 	public List<CoffeeRequestDTO> viewCoffeeRequest(Users user);
 

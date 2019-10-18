@@ -22,13 +22,33 @@
 				</button>
 			</div>
 			<h1>
-				<i class="fa fa-users"></i> Users <a href="${pageContext.request.contextPath}/coffee/cup"><button data-toggle="tooltip" class="btn btn-default btn-danger btn-flat" value="Reload Page" data-original-title="Refresh">
-						<i class="fa fa-refresh"></i> Cup Test
-					</button>
-				</a> <a href="${pageContext.request.contextPath}/coffee/clean"><button data-toggle="tooltip" class="btn btn-danger btn-flat" value="Reload Page" data-original-title="Refresh">
-						<i class="fa fa-refresh"></i> Clean
-					</button>
-				</a>
+				<i class="fa fa-users"></i> Users 
+				
+				<c:choose>
+					<c:when test="${configStatus eq 1}">
+						<a href=# data-href="${pageContext.request.contextPath}/coffee/maintenanceOff" data-toggle="modal" data-target="#confirm">
+							<button data-toggle="tooltip" class="btn btn-success btn-flat" value="Reload Page" data-original-title="Refresh">
+								<i class="fa fa-refresh"></i> Maintenance
+							</button>
+						</a>
+					</c:when>
+					<c:otherwise>
+						<a href=# data-href="${pageContext.request.contextPath}/coffee/maintenanceOn" data-toggle="modal" data-target="#confirm">
+							<button data-toggle="tooltip" class="btn btn-danger btn-flat" value="Reload Page" data-original-title="Refresh">
+								<i class="fa fa-refresh"></i> Maintenance
+							</button>
+						</a>
+						<a href=# data-href="${pageContext.request.contextPath}/coffee/cupTest" data-toggle="modal" data-target="#confirm"><button data-toggle="tooltip" class="btn btn-default btn-danger btn-flat" value="Reload Page" data-original-title="Refresh">
+								<i class="fa fa-refresh"></i> Cup Test
+							</button>
+						</a> 
+						<a href=# data-href="${pageContext.request.contextPath}/coffee/clean" data-toggle="modal" data-target="#confirm">
+							<button data-toggle="tooltip" class="btn btn-danger btn-flat" value="Reload Page" data-original-title="Refresh">
+								<i class="fa fa-refresh"></i> Clean
+							</button>
+						</a>
+					</c:otherwise>
+				</c:choose>
 			</h1>
 		</div>
 		<div class="panel-body">
@@ -71,6 +91,13 @@
 				</tbody>
 			</table>
 		</div>
+		<div class="panel-footer">
+			<a href=# data-href="${pageContext.request.contextPath}/coffee/xlsx" data-toggle="modal" data-target="#confirm">
+				<button data-toggle="tooltip" class="btn btn-success btn-flat" value="Reload Page" data-original-title="Refresh">
+					<i class="fa fa-file-excel-o"></i> Export Excel
+				</button>
+			</a>
+		</div>
 	</div>
 </div>
 
@@ -82,7 +109,9 @@
 				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="myModalLabel">Confirm Message</h4>
 			</div>
-			<div id="modal-confirm-message" class="modal-body reminder-modal"></div>
+			<div id="modal-confirm-message" class="modal-body reminder-modal">
+				Click "confirm" to confirm
+			</div>
 			<div class="modal-footer" align="right">
 				<button type="button" class="btn btn-default confirm-no" data-dismiss="modal" style="width: 20%;">Close</button>
 				<a class="btn btn-primary btn-ok" style="width: 20%;">Confirm</a>
@@ -92,4 +121,9 @@
 	</div>
 	<!-- /.modal-dialog -->
 </div>
+<c:if test="${excel eq true}">
+	<script>
+		alert("Excel generated at C:/New Folder");
+	</script>
+</c:if>
 

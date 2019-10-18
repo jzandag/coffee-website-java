@@ -116,7 +116,7 @@ public class CoffeeRequest extends BaseModel implements Serializable {
 		this.queue = queue;
 	}
 	
-	@OneToOne(fetch = FetchType.EAGER, targetEntity = Users.class,cascade=CascadeType.ALL)
+	@OneToOne(fetch = FetchType.EAGER, targetEntity = Users.class)
 	@JoinColumn(name = "userID")
 	public Users getUser() {
 		return user;

@@ -33,12 +33,12 @@
    	 </definition>
    	 
    	 <definition name="viewUsers" extends="layout">
-        <put-attribute name="title" value="About Us"></put-attribute>
+        <put-attribute name="title" value="Admin dashboard"></put-attribute>
         <put-attribute name="body" value="/WEB-INF/views/viewUsers.jsp"></put-attribute>
    	 </definition>
    	 
    	 <definition name="userProfile" extends="layout">
-        <put-attribute name="title" value="About Us"></put-attribute>
+        <put-attribute name="title" value="User Profile"></put-attribute>
         <put-attribute name="body" value="/WEB-INF/views/userProfile.jsp"></put-attribute>
    	 </definition>
    	 

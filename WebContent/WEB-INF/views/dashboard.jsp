@@ -17,18 +17,18 @@
 		<div class="container-fluid">
 			<div class="row">
 				<div class="center" style="margin-top:25px">
-					<div class="col-xs-12 col-sm-4" style="margin-bottom:5px">
+					<div class="col-xs-12 col-sm-6" style="margin-bottom:5px">
 					<a href="#" data-toggle="modal" data-target="#brewnow">
 						<button class="btn btn-primary btn-brew btn-block" data-toggle="tooltip" data-placement="top">Brew now</button></a>
 					</div>
-					<div class="col-xs-12 col-sm-4" style="margin-bottom:5px">
+					<div class="col-xs-12 col-sm-6" style="margin-bottom:5px">
 					<a href="#" data-toggle="modal" data-target="#schedbrew">
 						<button class="btn btn-primary btn-brew btn-block" data-toggle="tooltip" data-placement="top">Schedule</button></a>
 					</div>
-					<div class="col-xs-12 col-sm-4">
+					<!-- <div class="col-xs-12 col-sm-4">
 					<a href="#" data-toggle="modal" data-target="#roundspaceModal">
 						<button class="btn btn-primary btn-block">Analytics</button></a>
-					</div>	
+					</div>	 -->
 				</div>
 			</div>
 			
@@ -42,11 +42,12 @@
 							<th>Brew Date</th>
 							<th>User</th>
 							<th class="td-right">Status</th>
+							<th>Action</th>
 
 						</tr>
 					</thead>
 					<tbody id="coffee-data">
-						<tr><td colspan=5 class="success text-center" ><a href="#" class="text-bold text-italic"><i class="fa fa-spinner fa-spin"></i> loading . . . </td></tr>
+						<tr><td colspan=6 class="success text-center" ><a href="#" class="text-bold text-italic"><i class="fa fa-spinner fa-spin"></i> loading . . . </td></tr>
 					</tbody>
 				 </table>
 			</div>
@@ -297,89 +298,6 @@
 		</div>
 	</div>
 	<div id="test" class="padding container-fluid"></div>
-
-	<!-- <div class="row">
-		<div class="col-lg-12">
-			<div class="panel panel-defualt" >
-				<div class="panel-heading with-border">
-					<h1>SSS Table Details</h1>
-					<div class=" pull-right">
-						<button type="button" class="btn btn-box-tool" data-widget="collapse">
-							<i class="fa fa-plus"></i>
-						</button>
-					</div>
-				</div>
-				<div class="panel-body" >
-					<div class="row">
-						<div class="col-lg-12" id="sss-table-body">
-							<div class="form-group col-lg-2 col-md-2">
-								 <button type="button" id="black-coffee" class="btn btn-box-tool">Black Coffee</button>
-							</div>
-						</div>
-					</div>
-				</div>
-
-			</div>
-			
-		</div>
-	</div> -->
-
-	<!-- DRAFT CHARTS -->
-	<div class="col-lg-6">
-		
-	
-		<div class="box box-info">
-			<div class="box-header with-border">
-				<h3 class="box-title">Daily</h3>
-
-				<div class="box-tools pull-right">
-					<button type="button" class="btn btn-box-tool" data-toggle="collapse" data-target="#chartlol"><i class="fa fa-minus"></i>
-					</button>
-					<button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
-				</div>
-			</div>
-			<div id="chartlol" class="box-body collapse in chart-responsive">
-				<div class="chart" id="line-chart" style="height: 300px;"></div>
-			</div>
-			<!-- /.box-body -->
-		</div>
-	</div>
-	<div class="col-lg-6">
-		<div class="box box-success">
-            <div class="box-header with-border">
-              <h3 class="box-title">Monthly</h3>
-
-              <div class="box-tools pull-right">
-                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-                </button>
-                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
-              </div>
-            </div>
-            <div class="box-body chart-responsive">
-              <div class="chart" id="bar-chart" style="height: 300px;"></div>
-            </div>
-            <!-- /.box-body -->
-          </div>
-    </div>
-	
-
-	<div class="col-lg-12">
-		<div class="box box-danger">
-			<div class="box-header with-border">
-				<h3 class="box-title">Weeklys</h3>
-
-				<div class="box-tools pull-right">
-					<button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
-					</button>
-					<button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
-				</div>
-			</div>
-			<div class="box-body chart-responsive">
-				<div class="chart" id="sales-chart" style="height: 300px; position: relative;"></div>
-			</div>
-			<!-- /.box-body -->
-		</div>
-	</div>
 	
 	<div id="coffee-temp" class="hide"></div>
 	<div id="coffee-row" class="hide">
@@ -391,8 +309,33 @@
 					<td class="brewDate"></td>
 					<td class="user"></td>
 					<td class="status"></td>
+					<td class="text-center action">
+						<a href="#" id="delete" title="Edit" data-href="" data-toggle="modal" data-target="#confirm"> <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+	   					</a>
+					</td>
 				</tr>
 			</tbody>
 		</table>
 	</div>
+	
+	<!-- confirm modal-->
+<div class="modal fade" id="confirm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h4 class="modal-title" id="myModalLabel">Confirm Message</h4>
+			</div>
+			<div id="modal-confirm-message" class="modal-body reminder-modal">
+				Click "confirm" to confirm
+			</div>
+			<div class="modal-footer" align="right">
+				<button type="button" class="btn btn-default confirm-no" data-dismiss="modal" style="width: 20%;">Close</button>
+				<a class="btn btn-primary btn-ok" style="width: 20%;">Confirm</a>
+			</div>
+		</div>
+		<!-- /.modal-content -->
+	</div>
+	<!-- /.modal-dialog -->
+</div>
 

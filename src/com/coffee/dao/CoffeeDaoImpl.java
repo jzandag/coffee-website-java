@@ -1,5 +1,9 @@
 package com.coffee.dao;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -20,6 +24,7 @@ import com.coffee.base.BaseDaoHibernate;
 import com.coffee.enums.CoffeeStatusEnum;
 import com.coffee.model.CoffeeRequest;
 import com.coffee.model.CoffeeRequestDTO;
+import com.coffee.model.Configuration;
 import com.coffee.model.Notification;
 import com.coffee.model.Users;
 import com.coffee.util.InventoryUtility;
@@ -32,7 +37,8 @@ public class CoffeeDaoImpl extends BaseDaoHibernate implements CoffeeDao  {
 		super(sessionFactory);
 		// TODO Auto-generated constructor stub
 	}
-
+	
+	public static Integer brew = 1;
 	@SuppressWarnings({ "unchecked" })
 	@Override
 	public List<Users> validateUser(Users user) {
@@ -82,12 +88,13 @@ public class CoffeeDaoImpl extends BaseDaoHibernate implements CoffeeDao  {
 	@Transactional
 	@SuppressWarnings("unchecked")
 	@Override
-	public String checkLatestSched(Users user) {
+	public String checkLatestSched(Users user) throws IOException{
 		
 		String output = "";
 		final String getLatestquery = "SELECT * FROM coffee_request WHERE `queue`= 1 ORDER BY `brew_date`";
 		SQLQuery query = getSession().createSQLQuery(getLatestquery);
 		if(query.list().size() == 0){
+			System.out.println("start");
 			final String get_current_queue_query = "SELECT r.coffeereq_id AS id " +
 					"FROM `coffee_request` r " +
 					"INNER JOIN config c ON r.config = c.id " +
@@ -113,49 +120,212 @@ public class CoffeeDaoImpl extends BaseDaoHibernate implements CoffeeDao  {
 				if(c.getConfig().getStatus() == 0){
 					return "Maintenance Mode";
 				}
-				String update_query = "UPDATE coffee_request SET status=1, queue=1 WHERE coffeereq_id = :id";
-				SQLQuery query3 = getSession().createSQLQuery(update_query);
-				if(!InventoryUtility.isNull(c.getId())) {
-					query3.setParameter("id",c.getId());
+				c.setStatus(1);
+				c.setQueue(1);
+				save(c);
 				
+				//execute of check py
+				//Integer status = checkStatusMachine();
+				
+				Long cfg = (long) 1;
+				Configuration config = get(Configuration.class, cfg);
+				
+				Integer coffee = Python.coffeeCheck();
+				Integer creamer = Python.creamerCheck();
+				Integer sugar = Python.sugarCheck();
+				Integer cup1 = Python.cup1();
+				Integer cup2 = Python.cup2();
+				Integer ir = Python.ir();
+				Integer fs = Python.fs();
+				System.out.println("here");
+				if(coffee.equals(1)){
+					notifUser("Insuffiecient coffee");
+				}
+				if(creamer.equals(1)){
+					notifUser("Insuffiecient creamer");
+				}
+				if(sugar.equals(1)){
+					notifUser("Insuffiecient sugar");
+				}
+				if(cup1.equals(1)){
+					notifUser("Insufficient cup at slot #1");
+				}
+				if(cup2.equals(1)){
+					notifUser("Insufficient cup at slot #2");
+				}
+				if(ir.equals(1)){
+					notifUser("Both slots are occupied");
+				}
+				if(fs.equals(1)){
+					notifUser("Water insufficient");
 				}
 				
-				query3.executeUpdate();
-				//adding notifications for each user
-				Notification n = new Notification();
-				Date date = new Date(System.currentTimeMillis());
-				n.setCreatedDate(date);
-				n.setIsRead(false);
-				n.setUserId(c.getUser().getId());
-				n.setDescription("Coffee of user \"" + c.getUser().getId() + "\" is ready");
+				//check error or complete brewing process
+				if(coffee.equals(1) || creamer.equals(1) || sugar.equals(1) || fs.equals(1)){
+					config.setStatus(0);
+					save(config);
+					String queueFinish = "UPDATE coffee_request SET queue=0 WHERE coffeereq_id = :id";
+					SQLQuery query4 = getSession().createSQLQuery(queueFinish);
+					if(!InventoryUtility.isNull(c.getId())) {
+						query4.setParameter("id",c.getId());
+					}
+					query4.executeUpdate();
+				}
+				else if(ir.equals(0) && brew.equals(1)) {
+					brew=0;
+					System.out.println("cup2");
+					notifUserAdmin(c.getUser().getId(), c.getUser().getRole(), "Coffee of user \"" + c.getUser().getUsername() + "\" is ready on slot #2");
+					if(user.getId().equals(c.getUser().getId())){
+						output = "<script>modalAlertMessage('Coffee Brew', 'Coffee is ready to serve at slot #2');console.log('coffee brew!');</script>";
+					}
+					c.setStatus(1);
+					c.setQueue(0);
+					save(c);
+					System.out.println("brew at slot2");
+					brewSlot2(c);
+					System.out.println("done2");
+					brew=1;
+					break;
+				}
+				else if(ir.equals(2) && brew.equals(1)){
+					brew=0;
+					System.out.println("cup1");
+					notifUserAdmin(c.getUser().getId(), c.getUser().getRole(), "Coffee of user \"" + c.getUser().getUsername() + "\" is ready on slot #1");
+					if(user.getId().equals(c.getUser().getId())){
+						output = "<script>modalAlertMessage('Coffee Brew', 'Coffee is ready to serve at slot #1');console.log('coffee brew!');</script>";
+					}
+					c.setStatus(1);
+					c.setQueue(0);
+					save(c);
+					System.out.println("brew at slot1");
+					brewSlot1(c);
+					System.out.println("done2");
+					brew=1;
+					break;
+				}
+				//end of check status
 				
-				if(!c.getUser().getRole().equals("admin")){
-					save(n);
-				}
-				HashMap<String, Object> map = new HashMap<String, Object>();
-				map.put("role", "admin");
-				List<Users> list = (List<Users>) getAllByHashMap(Users.class, map);
 				
-				for(Users notifUser : list){
-					n.setUserId(notifUser.getId());
-					save(n);
-				}
-				//end add notif
-				
-				if(user.getId().equals(c.getUser().getId())){
-					output = "<script>modalAlertMessage('Coffee Brew', 'Coffee is ready to serve at slot #2');console.log('coffee brew!');</script>";
-				}
-				String queueFinish = "UPDATE coffee_request SET queue=0 WHERE coffeereq_id = :id";
-				SQLQuery query4 = getSession().createSQLQuery(queueFinish);
-				if(!InventoryUtility.isNull(c.getId())) {
-					query4.setParameter("id",c.getId());
-				}
-				query4.executeUpdate();
 				break;
 			}
 		}
 			
 		return output;
+	}
+	
+	public void brewSlot1(CoffeeRequest c) throws IOException {
+		final String PYTHON_PATH = "PYTHON_PATH";
+
+		try {
+
+			// pagkuha ng path sa env variables
+			String pythonPath = System.getenv(PYTHON_PATH);
+
+			// pwede magdagdag ng parameters para idagdag lang saa string array
+			String[] callAndArgs = { "sudo", "python3", "brewSlot1.py", c.getCoffeeLevel().toString(), c.getCreamerLevel().toString(), c.getSugarLevel().toString()};
+
+			Process p = Runtime.getRuntime().exec(callAndArgs, null, new java.io.File(pythonPath));
+
+			BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));// getting
+																									// the
+																									// input
+
+			BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));// getting
+																									// the
+																									// error
+
+			String command_result = stdInput.readLine();// reading the output
+			System.out.println(command_result);
+			
+		} catch (IOException e) {
+
+		}
+	}
+	
+	public void brewSlot2(CoffeeRequest c) throws IOException {
+		final String PYTHON_PATH = "PYTHON_PATH";
+
+		try {
+
+			// pagkuha ng path sa env variables
+			String pythonPath = System.getenv(PYTHON_PATH);
+
+			String[] env = null;
+			// pwede magdagdag ng parameters para idagdag lang saa string array
+			String[] callAndArgs = { "sudo", "python3", "brewSlot2.py", c.getCoffeeLevel().toString(), c.getCreamerLevel().toString(), c.getSugarLevel().toString()};
+
+			Process p = Runtime.getRuntime().exec(callAndArgs, env, new java.io.File(pythonPath));
+
+			BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));// getting
+																									// the
+																									// input
+
+			BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));// getting
+																									// the
+																									// error
+
+			String command_result = stdInput.readLine();// reading the output
+			System.out.println(command_result);
+			
+		} catch (IOException e) {
+			 
+		}
+	}
+	
+	@Transactional
+	public void notifUserAdmin(Long id,String role, String description){
+		Notification n = new Notification();
+		Date date = new Date(System.currentTimeMillis());
+		n.setCreatedDate(date);
+		n.setIsRead(false);
+		n.setUserId(id);
+		n.setDescription(description);
+		
+		if(!role.equals("admin")){
+			save(n);
+		}
+		HashMap<String, Object> map = new HashMap<String, Object>();
+		map.put("role", "admin");
+		List<Users> list = (List<Users>) getAllByHashMap(Users.class, map);
+		
+		for(Users notifUser : list){
+			n.setUserId(notifUser.getId());
+			save(n);
+		}
+	}
+	
+	@Transactional
+	public void notifAdmin(String description){
+		Notification n = new Notification();
+		Date date = new Date(System.currentTimeMillis());
+		n.setCreatedDate(date);
+		n.setIsRead(false);
+		n.setDescription(description);
+	
+		HashMap<String, Object> map = new HashMap<String, Object>();
+		map.put("role", "admin");
+		List<Users> list = (List<Users>) getAllByHashMap(Users.class, map);
+		
+		for(Users notifUser : list){
+			n.setUserId(notifUser.getId());
+			save(n);
+		}
+	}
+	
+	@Transactional
+	public void notifUser(String description){
+		Notification n = new Notification();
+		Date date = new Date(System.currentTimeMillis());
+		n.setCreatedDate(date);
+		n.setIsRead(false);
+		n.setDescription(description);
+		
+		List<Users> list = (List<Users>) getAll(Users.class);
+		
+		for(Users notifUser : list){
+			n.setUserId(notifUser.getId());
+			save(n);
+		}
 	}
 
 	@Override
@@ -194,11 +364,10 @@ public class CoffeeDaoImpl extends BaseDaoHibernate implements CoffeeDao  {
 		StringBuffer dynamicSql = new StringBuffer();
 		
 		//Generate sqlCount query
-		StringBuffer hqlQueryCount = new StringBuffer("select count(*) from Notification e where 1=1 ");
+		StringBuffer hqlQueryCount = new StringBuffer("select count(*) from Notification e where 1=1 AND isRead=false ");
 		StringBuffer hqlQuery = new StringBuffer("from Notification e where 1=1 ");
-		dynamicSql.append("AND isRead=false ");
-		dynamicSql.append("AND userId= :id ");
 		
+		dynamicSql.append("AND userId= :id ORDER BY id desc limit 10 ");
 		
 		final String sql =  hqlQuery.append(dynamicSql).toString();
 		final String sqlCount =  hqlQueryCount.append(dynamicSql).toString();
@@ -211,9 +380,16 @@ public class CoffeeDaoImpl extends BaseDaoHibernate implements CoffeeDao  {
 		
 		Integer count = Integer.parseInt(queryCount.list().get(0).toString());
 		List<Notification> result = query.list();
+		List<Notification> result2 = new ArrayList<Notification>();
+		
+		for(int x = 0; x <result.size();x++){
+			if( x ==10)
+				break;
+			result2.add(result.get(x));
+		}
 		
 		map.put(KEY_COUNT, count);
-		map.put(KEY_LIST, result);
+		map.put(KEY_LIST, result2);
 		return map;
 	}
 	

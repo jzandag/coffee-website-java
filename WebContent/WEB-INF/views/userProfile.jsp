@@ -16,7 +16,7 @@
 
 <!--Create user form -->
 <div class="">
-	<form:form method="post" id="submit_form" action="${pageContext.request.contextPath}/coffee/save" commandName="userCommand">
+	<form:form method="post" id="submit_form2" action="${pageContext.request.contextPath}/coffee/save" commandName="userCommand">
 		<div class="page-header" style="margin-top: 75px;">
 			<div class="container-fluid"></div>
 		</div>

@@ -13,6 +13,8 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import jsx3.app.Model;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.encoding.Md5PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -30,6 +32,7 @@ import com.coffee.model.CoffeeRequestDTO;
 import com.coffee.model.Configuration;
 import com.coffee.model.Notification;
 import com.coffee.model.Users;
+import com.coffee.pdf.ExportExcel;
 import com.coffee.service.CoffeeService;
 import com.coffee.util.Config;
 import com.coffee.util.InventoryUtility;
@@ -114,7 +117,10 @@ public class CoffeeController extends BaseController {
 	@RequestMapping(value = "/viewUsers", method = RequestMethod.GET)
 	public String viewUsers(HttpServletRequest request, HttpServletResponse response, ModelMap model) throws IOException {
 		if (!InventoryUtility.isNull(request.getSession().getAttribute("userSessionObj"))) {
-
+			Long id = (long) 1;
+			
+			Configuration config = coffeeService.get(Configuration.class, id);
+			model.put("configStatus", config.getStatus());
 			model.put("users", coffeeService.getAll(Users.class));
 			return "viewUsers";
 		}
@@ -167,6 +173,34 @@ public class CoffeeController extends BaseController {
 		}
 		return "login";
 	}
+	
+	@RequestMapping(value = "/maintenanceOff", method = RequestMethod.GET)
+	public String maintenanceOff(HttpServletRequest request, HttpServletResponse response, ModelMap model, @ModelAttribute("userCommand") Users user) throws IOException {
+		if (!InventoryUtility.isNull(request.getSession().getAttribute("userSessionObj"))) {
+			
+			Long id = (long) 1;
+			Configuration rodessaClarisseBandong = coffeeService.get(Configuration.class, id);
+			rodessaClarisseBandong.setStatus(0);
+			coffeeService.save(rodessaClarisseBandong);
+			
+			response.sendRedirect(request.getContextPath() + "/coffee/viewUsers");
+		}
+		return "login";
+	}
+	
+	@RequestMapping(value = "/maintenanceOn", method = RequestMethod.GET)
+	public String maintenanceOn(HttpServletRequest request, HttpServletResponse response, ModelMap model, @ModelAttribute("userCommand") Users user) throws IOException {
+		if (!InventoryUtility.isNull(request.getSession().getAttribute("userSessionObj"))) {
+			
+			Long id = (long) 1;
+			Configuration rodessaClarisseBandong = coffeeService.get(Configuration.class, id);
+			rodessaClarisseBandong.setStatus(1);
+			coffeeService.save(rodessaClarisseBandong);
+			response.sendRedirect(request.getContextPath() + "/coffee/viewUsers");
+		}
+		return "login";
+	}
+	
 
 	@RequestMapping(value = "/myProfile", method = RequestMethod.GET)
 	public String myProfile(HttpServletRequest request, HttpServletResponse response, ModelMap model, @ModelAttribute("userCommand") Users user, BindingResult result) throws IOException {
@@ -206,10 +240,14 @@ public class CoffeeController extends BaseController {
 	}
 
 	@RequestMapping(value = "/disable")
-	public @ResponseBody String disable(HttpServletRequest request, HttpServletResponse response, ModelMap map, @ModelAttribute("coffeeCommand") CoffeeRequest cr) throws IOException {
+	public @ResponseBody String disable(HttpServletRequest request, HttpServletResponse response, @ModelAttribute("userCommand") Users users) throws IOException {
 		// if(!InventoryUtility.isNull(request.getSession().getAttribute("userSessionObj")))
+		request.setCharacterEncoding("UTF-8");
+		Long idid = Long.valueOf(request.getParameter("id").trim());
 
-		Users user = (Users) request.getSession().getAttribute("userSessionObj");
+		Users user = coffeeService.get(Users.class, idid);
+		//Users user = (Users) request.getSession().getAttribute("userSessionObj");
+		
 		Boolean test = coffeeService.checkIfQueue(user);
 		return "{\"result\":\"" + test + "\"}";
 	}
@@ -234,7 +272,10 @@ public class CoffeeController extends BaseController {
 		 * if(!InventoryUtility.isNull(request.getSession().getAttribute(
 		 * "userSessionObj"))){
 		 */
-		Users user = (Users) request.getSession().getAttribute("userSessionObj");
+		request.setCharacterEncoding("UTF-8");
+		Long id = Long.valueOf(request.getParameter("id").trim());
+		Users user = coffeeService.get(Users.class, id);
+		//Users user = (Users) request.getSession().getAttribute("userSessionObj");
 		List<CoffeeRequestDTO> li = coffeeService.viewCoffeeRequest(user);
 
 		GsonBuilder gsonBuilder = new GsonBuilder();
@@ -252,12 +293,22 @@ public class CoffeeController extends BaseController {
 		response.sendRedirect(request.getContextPath() + "/coffee/dashboard");
 	}
 	
+	@RequestMapping(value = "/deleteQueue", method = RequestMethod.GET)
+	public void deleteQueue(HttpServletRequest request, HttpServletResponse response, ModelMap map) throws IOException {
+		Long id = Long.parseLong(request.getParameter("id"));
+
+		CoffeeRequest obj = coffeeService.get(CoffeeRequest.class, id);
+		coffeeService.delete(obj);
+
+		response.sendRedirect(request.getContextPath() + "/coffee/dashboard");
+	}
+	
 	@RequestMapping(value = "/test", method = RequestMethod.GET)
 	public @ResponseBody String test(HttpServletRequest request, HttpServletResponse response, ModelMap map) throws IOException {
 		
 		final String PYTHON_PATH = "PYTHON_PATH";
 		
-		try {
+		try{
 
 			// pagkuha ng path sa env variables
 			String pythonPath = System.getenv(PYTHON_PATH);
@@ -281,6 +332,90 @@ public class CoffeeController extends BaseController {
 			System.exit(-1);
 			return "null";
 		}
+	}
+	
+	@RequestMapping(value = "/cupTest", method = RequestMethod.GET)
+	public void cuptest(HttpServletRequest request, HttpServletResponse response, ModelMap map) throws IOException {
+		
+		final String PYTHON_PATH = "PYTHON_PATH";
+		
+		try {
+
+			// pagkuha ng path sa env variables
+			String pythonPath = System.getenv(PYTHON_PATH);
+
+			String[] env = null;
+			// pwede magdagdag ng parameters para idagdag lang saa string array
+			String[] callAndArgs = { "python", "cupTest.py"};// python file with agruments
+
+			Process p = Runtime.getRuntime().exec(callAndArgs, env, new java.io.File(pythonPath));
+
+			BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));// getting the input
+
+			BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));// getting the error
+
+			String command_result = stdInput.readLine();// reading the output
+			System.out.println(command_result);
+			
+			response.sendRedirect(request.getContextPath() + "/coffee/dashboard");
+		} catch (IOException e) {
+			System.out.println("exception occured");
+			e.printStackTrace();
+			System.exit(-1);
+			
+		}
+	}
+	
+	@SuppressWarnings("unused")
+	@RequestMapping(value = "/clean", method = RequestMethod.GET)
+	public void clean(HttpServletRequest request, HttpServletResponse response, ModelMap map) throws IOException {
+		
+		final String PYTHON_PATH = "PYTHON_PATH";
+		
+		try {
+
+			// pagkuha ng path sa env variables
+			String pythonPath = System.getenv(PYTHON_PATH);
+
+			String[] env = null;
+			// pwede magdagdag ng parameters para idagdag lang saa string array
+			String[] callAndArgs = { "python", "clean.py"};// python file with agruments
+
+			Process p = Runtime.getRuntime().exec(callAndArgs, env, new java.io.File(pythonPath));
+
+			BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));// getting the input
+
+			BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));// getting the error
+
+			String command_result = stdInput.readLine();// reading the output
+			System.out.println(command_result);
+			response.sendRedirect(request.getContextPath() + "/coffee/dashboard");
+		} catch (IOException e) {
+			System.out.println("exception occured");
+			e.printStackTrace();
+			System.exit(-1);
+		}
+	}
+	
+	@RequestMapping(value = "/xlsx")
+	public String xlsx(HttpServletResponse response, HttpServletRequest request, ModelMap model) throws IOException {
+		
+		List<CoffeeRequest> list = (List<CoffeeRequest>) coffeeService.getAll(CoffeeRequest.class);
+		
+		ExportExcel xl = new ExportExcel();
+		
+		
+		xl.generateExcel(list);
+		
+		Long id = (long) 1;
+		
+		Configuration config = coffeeService.get(Configuration.class, id);
+		model.put("configStatus", config.getStatus());
+		model.addAttribute("excel",true);
+
+		model.put("users", coffeeService.getAll(Users.class));
+		return "viewUsers";
+		//response.sendRedirect(request.getContextPath() + "/coffee/viewUsers");
 	}
 
 	private void initModel(ModelMap model) {

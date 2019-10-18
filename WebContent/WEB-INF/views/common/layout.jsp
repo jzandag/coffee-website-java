@@ -15,7 +15,7 @@
     <script src="<c:url value="/js/jquery-3.3.1.min.js"/>"></script>
 	<script src="<c:url value="/js/bootstrap/bootstrap.min.js"/>"></script>
 	<script src="<c:url value="/js/bootstrapValidator.min.js"/>"></script>
-	<script src="<c:url value="/js/bootstrap-datetimepicker.min.js"/>"></script>
+	<script src="<c:url value="/js/jquery.datetimepicker.js"/>"></script>
 	<script src="<c:url value="/js/common.js"/>"></script>
 
 	<!-- plugins -->
@@ -29,7 +29,7 @@
 	<!-- <link rel="stylesheet" href="../css/plugins/AdminLTE.min.css" /> -->
 	<link rel="stylesheet" href="<c:url value="/css/bootstrap/bootstrap.min.css"/>">
 	<link rel="stylesheet" href="<c:url value="/css/font-awesome.min.css"/>">
-	<link rel="stylesheet" href="<c:url value="/css/bootstrap-datetimepicker.min.css"/>" />
+	<link rel="stylesheet" href="<c:url value="/css/jquery.datetimepicker.min.css"/>" />
 	<link rel="stylesheet" href="<c:url value="/css/bootstrapValidator.min.css"/>" />
 	
 	<!-- plugins -->
@@ -64,8 +64,9 @@
 		  display: none;
 		  position: absolute;
 		  background-color: #f1f1f1;
-		  min-width: 160px;
-		  overflow: auto;
+		  width: 300px;
+		  height: 500px;
+		  overflow-y: scroll;
 		  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
 		  z-index: 1;
 		}
@@ -143,27 +144,5 @@
 			<p id="idId" class="hide">${userSessionObj.id}</p>
 		
 		</c:if>
-		<script type="text/javascript">
-		function myFunction() {
-			//document.getElementById("myDropdown").classList.toggle("show");
-		}
-		window.onclick = function(event) {
-			/* 
-				var dropdowns = document.getElementsByClassName("dropdown-content");
-				var i;
-				for (i = 0; i < dropdowns.length; i++) {
-					var openDropdown = dropdowns[i];
-					if (openDropdown.classList.contains('show')) {
-						openDropdown.classList.remove('show');
-					}
-				}
-			}  */
-			/* if (!event.target.matches('.dropbtn')) {
-				if($('#myDropdown').css('display') == 'block'){
-					$('#myDropdown').css('display','none');
-				}
-			} */
-		};
-		</script>
 	</body>
 </html>

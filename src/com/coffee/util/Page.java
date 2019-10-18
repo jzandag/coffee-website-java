@@ -6,9 +6,6 @@ import org.directwebremoting.annotations.DataTransferObject;
 
 import com.google.gson.annotations.Expose;
 
-/**
- * @author Ross Zarsuela
- */
 @DataTransferObject
 public class Page {
 

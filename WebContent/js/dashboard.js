@@ -4,10 +4,11 @@
 
  $(document).ready(function(){
 
-    /*jQuery.ajaxSetup({
-        async: false;ww
+    jQuery.ajaxSetup({
+        async: false
     });
-*/
+    
+    
 	 
     $(".dropdown").hover(function() {
         $('.dropdown-menu', this).stop( true, true ).fadeIn("fast");
@@ -19,11 +20,11 @@
         $('b', this).toggleClass("caret caret-up");
     });
 
+    var dateToday = new Date();
  	$('#brewDate').datetimepicker({
- 		autoclose: true,
- 		todayBtn: true,
- 		showMeridian: true,
- 		pickerReferer: 'input'
+ 		format:'Y-m-d H:i:s',
+ 	    minDate: 0,  // disable past date
+ 	    minTime: 0
  	});
 
  	$('#submit_formm').bootstrapValidator({
@@ -63,20 +64,44 @@
                 
             }
     	});
+    	
     }
     
     function load_latest_sched(text){
+/*    	jQuery.ajaxSetup({
+            async: false
+        });*/
+    	
     	$.ajax({
-    		url: baseUrl+"/latestSched",
+             url: baseUrl+"/disable?id="+$('#idId').text(),
+             data: {disable:''},
+             success: function(data){
+             	var result = JSON.parse(data);
+                 if(result.result != "false"){
+                     $('.btn-brew').attr("disabled",true);
+                     $('.btn-brew').attr("title","There is a queue");
+                 }else{
+                     $('.btn-brew').attr("disabled",false);
+                     $('.btn-brew').attr("title","");
+                 }
+             }
+         });
+    	
+    	$.ajax({
+    		url: baseUrl+"/latestSched/",
     		method: "POST",
     		data: {text:text},
+    		
     		success: function(data){
     			var result = JSON.parse(data);
     			$('#test').html(result.alert);
     			if(result.alert.length > 0 ){
-    				Notification.requestPermission();
-    				var e = new Notification('test');
+//    				Notification.requestPermission();
+//    				var e = new Notification('test');
+    				var audio = new Audio("../js/slot.mp3");
+    			    audio.play();
     			}
+    			
     			checkNotif();
     		},
             complete: function(data){
@@ -84,21 +109,7 @@
             }
     	});
 
-        $.ajax({
-            url: baseUrl+"/disable",
-            method: "POST",
-            data: {disable:''},
-            success: function(data){
-            	var result = JSON.parse(data);
-                if(result.result != "false"){
-                    $('.btn-brew').attr("disabled",true);
-                    $('.btn-brew').attr("title","There is a queue");
-                }else{
-                    $('.btn-brew').attr("disabled",false);
-                    $('.btn-brew').attr("title","");
-                }
-            }
-        });
+       
     }
 
     $('label').click(function(event) {
@@ -110,12 +121,21 @@
 	});
 
     //load_data_queue();
-    load_latest_sched();
-    setInterval(function(){
-    	//update_list();
-    	load_latest_sched();
-    	loadDataQueue();
-    },5000);
+    //load_latest_sched();
+    loadDataQueue();
+    var valid = false;
+	if (!valid) {
+		setInterval(function() {
+			// update_list();
+
+			valid = true;
+			loadDataQueue();
+			load_latest_sched();
+			valid=false;
+		
+		}, 5000);
+		
+	}
     
     function checkNotif(){
 		$.ajax({
@@ -127,14 +147,17 @@
 				var row = "";
 				if(result.content.length > 0) {
 					for(var i in result.content){
-						row += "<a href=\"#\">"+result.content[i].description+"</a>";
+						if(result.content[i].isRead == 'false')
+    						row += "<a style=\"background-color:#bbbbbb\" href=\"#\">"+result.content[i].description+"</a>";
+						else
+							row += "<a href=\"#\">"+result.content[i].description+"</a>";
 					}
 					$('#myDropdown').empty();
-	    			$('#myDropdown').append(row);
+	    			$('#myDropdown').html(row);
 				}
 				else{
 					$('#myDropdown').empty();
-	    			$('#myDropdown').append('<a href=#s>No notifications</a>');
+	    			$('#myDropdown').html('<a href=#s>No notifications</a>');
 				}
 				if(result.totalRecords == 0)
 					$('.badge-light').html('');
@@ -177,11 +200,10 @@
         
     });
     
-    loadDataQueue();
+    
     function loadDataQueue() {
     	$.ajax({
-	    	type : "POST",
-	    	url : baseUrl+"/listQueue",
+	    	url : baseUrl+"/listQueue?id="+$('#idId').text(),
 	    	data : {},
 	    	success : function(response) {
 		    	var result = JSON.parse(response);
@@ -198,7 +220,8 @@
 				    	$root.find('.brewDate').text(result[i].brewDate);
 				    	$root.find('.user').text(result[i].username);
 				    	$root.find('.status').text(result[i].statusDesc);
-
+				    	$root.find('.action a[id=delete]').attr('data-href', baseUrl+"/deleteQueue?id="+result[i].id);
+				    	
 				    	row += $root.html();
 				    	$root.html('');
 			    	}
@@ -206,7 +229,7 @@
 				    	$tbody.append(row);
 		    	} else {
 			    	$tbody.html('');
-			    	$tbody.append('<tr class="text-center"><td colspan="5">No records found.</td></tr>');
+			    	$tbody.append('<tr class="text-center"><td colspan="6">No records found.</td></tr>');
 		    	}
 	    	},
 	    	error : function(e) {
@@ -298,5 +321,10 @@
       ],
       hideHover: 'auto'
     });*/
+ // for the delete confirmation
+	$('#confirm').on('show.bs.modal', function(e) {
+
+		$(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
+	});
 
 });

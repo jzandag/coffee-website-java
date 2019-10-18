@@ -1,5 +1,6 @@
 package com.coffee.service;
 
+import java.io.IOException;
 import java.util.List;
 
 import com.coffee.base.BaseService;
@@ -15,7 +16,7 @@ public interface CoffeeService extends BaseService {
 	
 	public Boolean checkIfQueue(Users user);
 	
-	public String checkLatestSched(Users user);
+	public String checkLatestSched(Users user) throws IOException;
 	
 	public List<CoffeeRequestDTO> viewCoffeeRequest(Users user);
 
