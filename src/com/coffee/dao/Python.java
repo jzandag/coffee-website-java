@@ -16,7 +16,7 @@ public class Python {
 
 			String[] env = null;
 			// pwede magdagdag ng parameters para idagdag lang saa string array
-			String[] callAndArgs = { "sudo","python3", "coffeeCheck.py"};
+			String[] callAndArgs = {"python", "coffeeCheck.py"};
 
 			Process p = Runtime.getRuntime().exec(callAndArgs, env, new java.io.File(pythonPath));
 
@@ -34,7 +34,6 @@ public class Python {
 		} catch (IOException e) {
 			System.out.println("exception occured");
 			e.printStackTrace();
-			System.exit(-1);
 			return 0;
 		}
 	}
@@ -49,7 +48,7 @@ public class Python {
 
 			String[] env = null;
 			// pwede magdagdag ng parameters para idagdag lang saa string array
-			String[] callAndArgs = { "sudo","python3", "creamerCheck.py"};
+			String[] callAndArgs = {"python", "creamerCheck.py"};
 
 			Process p = Runtime.getRuntime().exec(callAndArgs, env, new java.io.File(pythonPath));
 
@@ -63,7 +62,6 @@ public class Python {
 		} catch (IOException e) {
 			System.out.println("exception occured");
 			e.printStackTrace();
-			System.exit(-1);
 			return 0;
 		}
 	}
@@ -78,7 +76,7 @@ public class Python {
 
 			String[] env = null;
 			// pwede magdagdag ng parameters para idagdag lang saa string array
-			String[] callAndArgs = { "sudo","python3", "sugarCheck.py"};
+			String[] callAndArgs = {"python", "sugarCheck.py"};
 
 			Process p = Runtime.getRuntime().exec(callAndArgs, env, new java.io.File(pythonPath));
 
@@ -96,7 +94,6 @@ public class Python {
 		} catch (IOException e) {
 			System.out.println("exception occured");
 			e.printStackTrace();
-			System.exit(-1);
 			return 0;
 		}
 	}
@@ -111,7 +108,7 @@ public class Python {
 
 			String[] env = null;
 			// pwede magdagdag ng parameters para idagdag lang saa string array
-			String[] callAndArgs = { "sudo","python3", "cup1.py"};
+			String[] callAndArgs = {"python", "cup1.py"};
 
 			Process p = Runtime.getRuntime().exec(callAndArgs, env, new java.io.File(pythonPath));
 
@@ -125,7 +122,6 @@ public class Python {
 		} catch (IOException e) {
 			System.out.println("exception occured");
 			e.printStackTrace();
-			System.exit(-1);
 			return 0;
 		}
 	}
@@ -140,7 +136,7 @@ public class Python {
 
 			String[] env = null;
 			// pwede magdagdag ng parameters para idagdag lang saa string array
-			String[] callAndArgs = { "sudo","python3", "cup2.py"};
+			String[] callAndArgs = {"python", "cup2.py"};
 
 			Process p = Runtime.getRuntime().exec(callAndArgs, env, new java.io.File(pythonPath));
 
@@ -154,7 +150,6 @@ public class Python {
 		} catch (IOException e) {
 			System.out.println("exception occured");
 			e.printStackTrace();
-			System.exit(-1);
 			return 0;
 		}
 	}
@@ -169,7 +164,7 @@ public class Python {
 
 			String[] env = null;
 			// pwede magdagdag ng parameters para idagdag lang saa string array
-			String[] callAndArgs = { "sudo","python3", "ir.py"};
+			String[] callAndArgs = {"python", "ir.py"};
 
 			Process p = Runtime.getRuntime().exec(callAndArgs, env, new java.io.File(pythonPath));
 
@@ -183,7 +178,6 @@ public class Python {
 		} catch (IOException e) {
 			System.out.println("exception occured");
 			e.printStackTrace();
-			System.exit(-1);
 			return 0;
 		}
 	}
@@ -198,7 +192,7 @@ public class Python {
 
 			String[] env = null;
 			// pwede magdagdag ng parameters para idagdag lang saa string array
-			String[] callAndArgs = { "sudo","python3", "float.py"};
+			String[] callAndArgs = {"python", "float.py"};
 
 			Process p = Runtime.getRuntime().exec(callAndArgs, env, new java.io.File(pythonPath));
 
@@ -212,7 +206,6 @@ public class Python {
 		} catch (IOException e) {
 			System.out.println("exception occured");
 			e.printStackTrace();
-			System.exit(-1);
 			return 0;
 		}
 	}

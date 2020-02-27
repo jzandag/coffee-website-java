@@ -6,7 +6,6 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -39,8 +38,10 @@ public class CoffeeDaoImpl extends BaseDaoHibernate implements CoffeeDao  {
 	}
 	
 	public static Integer brew = 1;
+	public static Integer queue = 1;
+	
 	@SuppressWarnings({ "unchecked" })
-	@Override
+	@Override 
 	public List<Users> validateUser(Users user) {
 		
 		StringBuffer sql = new StringBuffer();
@@ -93,7 +94,8 @@ public class CoffeeDaoImpl extends BaseDaoHibernate implements CoffeeDao  {
 		String output = "";
 		final String getLatestquery = "SELECT * FROM coffee_request WHERE `queue`= 1 ORDER BY `brew_date`";
 		SQLQuery query = getSession().createSQLQuery(getLatestquery);
-		if(query.list().size() == 0){
+		if(query.list().size() == 0 && queue.equals(1)){
+			queue = 0;
 			System.out.println("start");
 			final String get_current_queue_query = "SELECT r.coffeereq_id AS id " +
 					"FROM `coffee_request` r " +
@@ -137,7 +139,7 @@ public class CoffeeDaoImpl extends BaseDaoHibernate implements CoffeeDao  {
 				Integer cup2 = Python.cup2();
 				Integer ir = Python.ir();
 				Integer fs = Python.fs();
-				System.out.println("here");
+				System.out.println("In Queue");
 				if(coffee.equals(1)){
 					notifUser("Insuffiecient coffee");
 				}
@@ -208,6 +210,7 @@ public class CoffeeDaoImpl extends BaseDaoHibernate implements CoffeeDao  {
 				
 				break;
 			}
+			queue = 1;
 		}
 			
 		return output;
@@ -222,7 +225,7 @@ public class CoffeeDaoImpl extends BaseDaoHibernate implements CoffeeDao  {
 			String pythonPath = System.getenv(PYTHON_PATH);
 
 			// pwede magdagdag ng parameters para idagdag lang saa string array
-			String[] callAndArgs = { "sudo", "python3", "brewSlot1.py", c.getCoffeeLevel().toString(), c.getCreamerLevel().toString(), c.getSugarLevel().toString()};
+			String[] callAndArgs = {"python", "brewSlot1.py", c.getCoffeeLevel().toString(), c.getCreamerLevel().toString(), c.getSugarLevel().toString()};
 
 			Process p = Runtime.getRuntime().exec(callAndArgs, null, new java.io.File(pythonPath));
 
@@ -252,7 +255,7 @@ public class CoffeeDaoImpl extends BaseDaoHibernate implements CoffeeDao  {
 
 			String[] env = null;
 			// pwede magdagdag ng parameters para idagdag lang saa string array
-			String[] callAndArgs = { "sudo", "python3", "brewSlot2.py", c.getCoffeeLevel().toString(), c.getCreamerLevel().toString(), c.getSugarLevel().toString()};
+			String[] callAndArgs = {"python", "brewSlot2.py", c.getCoffeeLevel().toString(), c.getCreamerLevel().toString(), c.getSugarLevel().toString()};
 
 			Process p = Runtime.getRuntime().exec(callAndArgs, env, new java.io.File(pythonPath));
 
